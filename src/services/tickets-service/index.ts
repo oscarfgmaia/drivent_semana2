@@ -10,8 +10,23 @@ async function getTypes() {
   }
 }
 
+async function getTickets() {
+  const result = await ticketsRepository.getTickets();
+  if (!result) {
+    throw notFoundError();
+  } else {
+    return result;
+  }
+}
+
+async function createTicket() {
+  const result = await ticketsRepository.createTicket();
+}
+
 const ticketsService = {
   getTypes,
+  getTickets,
+  createTicket
 };
 
 export default ticketsService;
