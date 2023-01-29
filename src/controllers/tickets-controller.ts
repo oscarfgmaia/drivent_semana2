@@ -16,10 +16,11 @@ export async function getTypes(req: AuthenticatedRequest, res: Response) {
   }
 }
 
+
 export async function getTickets(req: AuthenticatedRequest, res: Response) {
   try {
-    const result = await ticketsService.getTickets();
-    res.send(result);
+    const result = await ticketsService.getTickets(req.userId);
+    res.send(result[0]);
   } catch (e) {
     if (e.name === 'NotFoundError') {
       return res.sendStatus(httpStatus.NOT_FOUND);
