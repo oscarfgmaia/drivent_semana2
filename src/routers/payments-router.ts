@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { getPayments, createPayment } from '@/controllers';
+import { getPayment, createPayment } from '@/controllers';
 import { authenticateToken } from '@/middlewares';
 
-const ticketsRouter = Router();
+const paymentsRouter = Router();
+//uthenticateToken, createPayment
+paymentsRouter
+.get('', authenticateToken, getPayment)
+.post('/process', authenticateToken, createPayment);
 
-ticketsRouter.get('/', authenticateToken, getPayments).post('/process', authenticateToken, createPayment);
-
-export { ticketsRouter };
+export { paymentsRouter };
