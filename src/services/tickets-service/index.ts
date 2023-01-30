@@ -1,6 +1,8 @@
+import { userIdWithTicketTypeId } from '@/controllers';
 import { notFoundError } from '@/errors';
 import enrollmentRepository from '@/repositories/enrollment-repository';
 import ticketsRepository from '@/repositories/ticket-repository';
+import { TicketWithTicketType } from '@/repositories/ticket-repository';
 
 async function getTypes() {
   const result = await ticketsRepository.getTypes();
@@ -31,9 +33,22 @@ async function userHasEnrollment(id: number) {
 export type CreateTicket = {
   ticketTypeId: number;
 };
-async function createTicket(ticketTypeId: number) {
-  const result = await ticketsRepository.createTicket(ticketTypeId);
-  return result;
+async function createTicket(obj: userIdWithTicketTypeId) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(obj.userId);
+  if (!enrollment) {
+    throw notFoundError();
+  }
+  const ticketType = await ticketsRepository.getTicketTypeById(obj.ticketTypeId);
+  if (!ticketType) {
+    throw notFoundError();
+  }
+  const ticketCreated = await ticketsRepository.createTicket(obj.ticketTypeId, enrollment.id);
+
+  const ticketWithTicketType = {
+    TicketType: { ...ticketType },
+    ...ticketCreated,
+  };
+  return ticketWithTicketType;
 }
 
 const ticketsService = {

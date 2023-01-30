@@ -2,6 +2,8 @@ import ticketsService from '@/services/tickets-service';
 import { Response } from 'express';
 import httpStatus from 'http-status';
 import { AuthenticatedRequest } from '@/middlewares';
+import { number } from 'joi';
+import { TicketStatus, TicketType } from '@prisma/client';
 
 export async function getTypes(req: AuthenticatedRequest, res: Response) {
   try {
@@ -34,12 +36,20 @@ export async function getTickets(req: AuthenticatedRequest, res: Response) {
   }
 }
 
+export type userIdWithTicketTypeId = {
+  ticketTypeId: number;
+  userId: number;
+  status: TicketStatus;
+};
+
 export async function createTicket(req: AuthenticatedRequest, res: Response) {
-  const ticketTypeId = req.body;
+  const userIdWithTicketTypeId = {
+    ticketTypeId: req.body.ticketTypeId as number,
+    userId: req.userId,
+  } as userIdWithTicketTypeId;
   try {
-    await ticketsService.userHasEnrollment(req.userId);
-    const result = await ticketsService.createTicket(ticketTypeId);
-    res.send(result);
+    const ticketCreated = await ticketsService.createTicket(userIdWithTicketTypeId);
+    res.status(httpStatus.CREATED).send(ticketCreated);
   } catch (e) {
     if (e.name === 'NotFoundError') {
       return res.sendStatus(httpStatus.NOT_FOUND);
