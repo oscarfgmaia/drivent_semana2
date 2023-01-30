@@ -18,7 +18,8 @@ export async function getTypes(req: AuthenticatedRequest, res: Response) {
 
 export async function getTickets(req: AuthenticatedRequest, res: Response) {
   try {
-    const result = await ticketsService.getTickets(req.userId);
+    await ticketsService.userHasEnrollment(req.userId);
+    const result = await ticketsService.getTickets();
     if (result.length === 0) {
       return res.sendStatus(httpStatus.NOT_FOUND);
     } else {
@@ -34,8 +35,10 @@ export async function getTickets(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function createTicket(req: AuthenticatedRequest, res: Response) {
+  const ticketTypeId = req.body;
   try {
-    const result = await ticketsService.createTicket();
+    await ticketsService.userHasEnrollment(req.userId);
+    const result = await ticketsService.createTicket(ticketTypeId);
     res.send(result);
   } catch (e) {
     if (e.name === 'NotFoundError') {

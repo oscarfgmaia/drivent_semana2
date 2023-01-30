@@ -19,7 +19,14 @@ async function getTickets(): Promise<TicketWithTicketType[]> {
   });
 }
 
-async function createTicket() {}
+async function createTicket(ticketTypeId: number) {
+  const ticketType = await prisma.ticketType.findFirst({
+    where: {
+      id: ticketTypeId,
+    },
+  });
+  console.log(ticketType)
+}
 
 const ticketsRepository = {
   getTypes,

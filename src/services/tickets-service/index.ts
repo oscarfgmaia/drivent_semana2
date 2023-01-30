@@ -11,12 +11,7 @@ async function getTypes() {
   }
 }
 
-async function getTickets(id: number) {
-  const enrollments = await enrollmentRepository.findWithAddressByUserId(id);
-  if (!enrollments) {
-    throw notFoundError();
-  }
-  
+async function getTickets() {
   const tickets = await ticketsRepository.getTickets();
 
   if (!tickets) {
@@ -25,15 +20,27 @@ async function getTickets(id: number) {
     return tickets;
   }
 }
-
-async function createTicket() {
-  const result = await ticketsRepository.createTicket();
+async function userHasEnrollment(id: number) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(id);
+  if (!enrollment) {
+    throw notFoundError();
+  } else {
+    return enrollment;
+  }
+}
+export type CreateTicket = {
+  ticketTypeId: number;
+};
+async function createTicket(ticketTypeId: number) {
+  const result = await ticketsRepository.createTicket(ticketTypeId);
+  return result;
 }
 
 const ticketsService = {
   getTypes,
   getTickets,
   createTicket,
+  userHasEnrollment,
 };
 
 export default ticketsService;
